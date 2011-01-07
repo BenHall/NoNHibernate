@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using AutoMapper;
@@ -27,11 +28,16 @@ namespace NoNHibernate
             connection.Open();
 
             SqlCommand command = new SqlCommand(query, connection);
+            command.Parameters.AddRange(ConvertToParameterList(query.Parameters));
             SqlDataReader sqlDataReader = command.ExecuteReader();
 
             IEnumerable<T> resultCollection = Mapper.Map<IDataReader, IList<T>>(sqlDataReader);
             sqlDataReader.Close();
             return resultCollection;
+        }
+
+        private SqlParameter[] ConvertToParameterList(Dictionary<string, object> parameters) {
+            throw new NotImplementedException();
         }
     }
 }

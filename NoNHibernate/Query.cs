@@ -9,10 +9,22 @@ namespace NoNHibernate
     {
         private int _count;
         private string _tableName;
-        List<string> where = new List<string>();
+        List<WhereClause> where = new List<WhereClause>();
 
         public Query() {
             _tableName = typeof (T).Name;
+        }
+
+        public Dictionary<string, object> Parameters {
+            get {
+                var d = new Dictionary<string, object>();
+
+                foreach (var whereClause in where) {
+                    d.Add(whereClause.Left, whereClause.Right);
+                }
+
+                return d;
+            }
         }
 
         public Query<T> Where(Expression<Func<T, bool>> expression) {
@@ -23,7 +35,8 @@ namespace NoNHibernate
             string op = parser.GetOperation();
 
             string sqlOp = TranslateOperationToSql(op);
-            where.Add(string.Format("{0} {1} '{2}'", left, sqlOp, right));
+
+            where.Add(new WhereClause { Left = left, Right = right, Op = sqlOp });
 
             return this;
         }
